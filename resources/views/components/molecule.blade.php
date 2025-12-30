@@ -34,12 +34,12 @@
     @else
         <div
             x-ref="viewer"
+            x-show="!loading"
             style="width: 100%; height: 100%;"
-            wire:loading.class="opacity-50"
         ></div>
 
         <div
-            wire:loading
+            x-show="loading"
             style="
                 position: absolute;
                 inset: 0;
@@ -72,6 +72,7 @@
     Alpine.data('moleculeViewer', (config) => ({
         viewer: null,
         rotationInterval: null,
+        loading: true,
 
         init() {
             this.$nextTick(() => {
@@ -88,10 +89,17 @@
         },
 
         createViewer() {
-            if (!config.moleculeData) return;
+            if (!config.moleculeData) {
+                this.loading = false;
+                return;
+            }
 
+            this.loading = true;
             const element = this.$refs.viewer;
-            if (!element) return;
+            if (!element) {
+                this.loading = false;
+                return;
+            }
 
             element.innerHTML = '';
             this.stopRotation();
@@ -105,6 +113,7 @@
             this.applyMode();
             this.viewer.zoomTo();
             this.viewer.render();
+            this.loading = false;
         },
 
         applyStyle() {
