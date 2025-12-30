@@ -1,5 +1,5 @@
 {
-    "name": "georgebuilds/molecule",
+    "name": "georgebuilds/livewire-molecule",
     "description": "A Laravel Livewire component for 3D molecular visualization using 3DMol.js",
     "keywords": ["laravel", "livewire", "molecule", "3dmol", "chemistry", "visualization", "smiles", "inchi"],
     "license": "MIT",
