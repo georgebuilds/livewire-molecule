@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Composer (PHP) dependencies
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    # Only update to latest versions (user should review to ensure major updates only)
+    versioning-strategy: increase
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "php"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+

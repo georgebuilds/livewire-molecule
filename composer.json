@@ -1,0 +1,55 @@
+{
+    "name": "georgebuilds/molecule",
+    "description": "A Laravel Livewire component for 3D molecular visualization using 3DMol.js",
+    "keywords": ["laravel", "livewire", "molecule", "3dmol", "chemistry", "visualization", "smiles", "inchi"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "George",
+            "email": "george@georgebuilds.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "livewire/livewire": "^3.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.8",
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "pestphp/pest": "^2.0|^3.0"
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest",
+        "analyze": "./vendor/bin/phpstan analyse --memory-limit=512M",
+        "check": [
+            "@analyze",
+            "@test"
+        ]
+    },
+    "autoload": {
+        "psr-4": {
+            "GeorgeBuilds\\Molecule\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GeorgeBuilds\\Molecule\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "GeorgeBuilds\\Molecule\\MoleculeServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
