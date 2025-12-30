@@ -16,7 +16,7 @@
     },
     "require-dev": {
         "larastan/larastan": "^3.8",
-        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "orchestra/testbench": "^10.8.0",
         "pestphp/pest": "^2.0|^3.0"
     },
     "scripts": {
