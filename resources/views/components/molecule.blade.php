@@ -135,17 +135,24 @@
             if (!this.viewer) return;
 
             this.stopRotation();
+            const viewerElement = this.$refs.viewer;
 
             if (config.mode === 'rotating') {
-                // Disable zoom control in rotating mode
-                this.viewer.disableMouseHandlers();
+                // Disable mouse interactions in rotating mode
+                if (viewerElement) {
+                    viewerElement.style.pointerEvents = 'none';
+                }
                 this.startRotation();
             } else if (config.mode === 'static') {
-                // Disable zoom control in static mode
-                this.viewer.disableMouseHandlers();
+                // Disable mouse interactions in static mode
+                if (viewerElement) {
+                    viewerElement.style.pointerEvents = 'none';
+                }
             } else {
-                // Enable mouse handlers for interactive mode
-                this.viewer.enableMouseHandlers();
+                // Enable mouse interactions for interactive mode
+                if (viewerElement) {
+                    viewerElement.style.pointerEvents = 'auto';
+                }
             }
         },
 
