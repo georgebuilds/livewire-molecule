@@ -2,6 +2,7 @@
 
 namespace GeorgeBuilds\Molecule\Components;
 
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Livewire\Attributes\Reactive;
@@ -11,9 +12,13 @@ class Molecule extends Component
 {
     // Input format - one of these is required
     public ?string $smiles = null;
+
     public ?string $inchi = null;
+
     public ?string $pdb = null;
+
     public ?string $sdf = null;
+
     public ?string $pubchemCid = null;
 
     // Display options
@@ -21,18 +26,25 @@ class Molecule extends Component
     public string $mode = 'interactive';
 
     public string $style = 'stick';
+
     public ?string $backgroundColor = null;
+
     public string $width = '100%';
+
     public string $height = '400px';
 
     // Resolved molecule data
     public ?string $moleculeData = null;
+
     public string $moleculeFormat = 'sdf';
+
     public ?string $error = null;
 
     public function mount(): void
     {
-        $this->backgroundColor ??= config('molecule.default_background', '#ffffff');
+        /** @var string $defaultBg */
+        $defaultBg = config('molecule.default_background', '#ffffff');
+        $this->backgroundColor ??= $defaultBg;
         $this->resolveMoleculeData();
     }
 
@@ -68,7 +80,7 @@ class Molecule extends Component
     protected function fetchFromPdb(string $pdbId): string
     {
         /** @var Response $response */
-        $response = Http::timeout(config('molecule.timeout', 10))
+        $response = Http::timeout($this->getTimeout())
             ->get("https://files.rcsb.org/download/{$pdbId}.pdb");
 
         if ($response->failed()) {
@@ -81,7 +93,7 @@ class Molecule extends Component
     protected function fetchFromPubChem(string $cid): string
     {
         /** @var Response $response */
-        $response = Http::timeout(config('molecule.timeout', 10))
+        $response = Http::timeout($this->getTimeout())
             ->get("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{$cid}/SDF");
 
         if ($response->failed()) {
@@ -95,11 +107,11 @@ class Molecule extends Component
     {
         $encoded = rawurlencode($smiles);
         /** @var Response $response */
-        $response = Http::timeout(config('molecule.timeout', 10))
+        $response = Http::timeout($this->getTimeout())
             ->get("https://cactus.nci.nih.gov/chemical/structure/{$encoded}/sdf");
 
         if ($response->failed()) {
-            throw new \Exception("Failed to convert SMILES to 3D structure. The SMILES string may be invalid.");
+            throw new \Exception('Failed to convert SMILES to 3D structure. The SMILES string may be invalid.');
         }
 
         return $response->body();
@@ -109,11 +121,11 @@ class Molecule extends Component
     {
         $encoded = rawurlencode($inchi);
         /** @var Response $response */
-        $response = Http::timeout(config('molecule.timeout', 10))
+        $response = Http::timeout($this->getTimeout())
             ->get("https://cactus.nci.nih.gov/chemical/structure/{$encoded}/sdf");
 
         if ($response->failed()) {
-            throw new \Exception("Failed to convert InChI to 3D structure. The InChI string may be invalid.");
+            throw new \Exception('Failed to convert InChI to 3D structure. The InChI string may be invalid.');
         }
 
         return $response->body();
@@ -125,12 +137,21 @@ class Molecule extends Component
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View
+     * Get the configured timeout value for HTTP requests.
      */
-    public function render(): \Illuminate\Contracts\View\View
+    private function getTimeout(): int
+    {
+        /** @var int $timeout */
+        $timeout = config('molecule.timeout', 10);
+
+        return $timeout;
+    }
+
+    public function render(): View
     {
         /** @var view-string $viewName */
         $viewName = 'livewire-molecule::components.molecule';
+
         return view($viewName);
     }
 }

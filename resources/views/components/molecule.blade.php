@@ -137,7 +137,15 @@
             this.stopRotation();
 
             if (config.mode === 'rotating') {
+                // Disable zoom control in rotating mode
+                this.viewer.disableMouseHandlers();
                 this.startRotation();
+            } else if (config.mode === 'static') {
+                // Disable zoom control in static mode
+                this.viewer.disableMouseHandlers();
+            } else {
+                // Enable mouse handlers for interactive mode
+                this.viewer.enableMouseHandlers();
             }
         },
 

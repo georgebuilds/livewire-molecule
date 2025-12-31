@@ -15,7 +15,7 @@ it('shows error when no molecule identifier provided', function () {
 
 it('accepts sdf data directly', function () {
     $sdfData = 'mock sdf content';
-    
+
     Livewire::test(Molecule::class, ['sdf' => $sdfData])
         ->assertSet('moleculeData', $sdfData)
         ->assertSet('moleculeFormat', 'sdf')
@@ -37,4 +37,27 @@ it('accepts custom display options', function () {
         ->assertSet('mode', 'rotating')
         ->assertSet('style', 'sphere')
         ->assertSet('backgroundColor', '#000000');
+});
+
+it('accepts rotating mode', function () {
+    Livewire::test(Molecule::class, [
+        'sdf' => 'mock data',
+        'mode' => 'rotating',
+    ])
+        ->assertSet('mode', 'rotating');
+});
+
+it('accepts static mode', function () {
+    Livewire::test(Molecule::class, [
+        'sdf' => 'mock data',
+        'mode' => 'static',
+    ])
+        ->assertSet('mode', 'static');
+});
+
+it('renders interactive mode by default', function () {
+    Livewire::test(Molecule::class, [
+        'sdf' => 'mock data',
+    ])
+        ->assertSet('mode', 'interactive');
 });
