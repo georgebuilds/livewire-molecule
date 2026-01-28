@@ -4,9 +4,11 @@ namespace GeorgeBuilds\Molecule\Components;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Livewire\Attributes\Reactive;
 use Livewire\Component;
+use Closure;
 
 class Molecule extends Component
 {
@@ -33,6 +35,21 @@ class Molecule extends Component
 
     public string $height = '400px';
 
+    /**
+     * @var array<string, mixed> Viewer options forwarded to 3Dmol.js.
+     */
+    public array $viewerOptions = [];
+
+    /**
+     * @var array<string, mixed> Model options forwarded to 3Dmol.js.
+     */
+    public array $modelOptions = [];
+
+    /**
+     * @var array<string, mixed> Style overrides forwarded to 3Dmol.js.
+     */
+    public array $styleOptions = [];
+
     // Resolved molecule data
     public ?string $moleculeData = null;
 
@@ -45,6 +62,9 @@ class Molecule extends Component
         /** @var string $defaultBg */
         $defaultBg = config('molecule.default_background', '#ffffff');
         $this->backgroundColor ??= $defaultBg;
+        $this->viewerOptions = $this->mergeDefaultOptions('viewer_options', $this->viewerOptions);
+        $this->modelOptions = $this->mergeDefaultOptions('model_options', $this->modelOptions);
+        $this->styleOptions = $this->mergeDefaultOptions('style_options', $this->styleOptions);
         $this->resolveMoleculeData();
     }
 
@@ -58,16 +78,16 @@ class Molecule extends Component
                 $this->moleculeData = $this->sdf;
                 $this->moleculeFormat = 'sdf';
             } elseif ($this->pdb) {
-                $this->moleculeData = $this->fetchFromPdb($this->pdb);
+                $this->moleculeData = $this->getCachedOrFetch('pdb', $this->pdb, fn () => $this->fetchFromPdb($this->pdb));
                 $this->moleculeFormat = 'pdb';
             } elseif ($this->pubchemCid) {
-                $this->moleculeData = $this->fetchFromPubChem($this->pubchemCid);
+                $this->moleculeData = $this->getCachedOrFetch('pubchem', $this->pubchemCid, fn () => $this->fetchFromPubChem($this->pubchemCid));
                 $this->moleculeFormat = 'sdf';
             } elseif ($this->smiles) {
-                $this->moleculeData = $this->convertSmilesToSdf($this->smiles);
+                $this->moleculeData = $this->getCachedOrFetch('smiles', $this->smiles, fn () => $this->convertSmilesToSdf($this->smiles));
                 $this->moleculeFormat = 'sdf';
             } elseif ($this->inchi) {
-                $this->moleculeData = $this->convertInchiToSdf($this->inchi);
+                $this->moleculeData = $this->getCachedOrFetch('inchi', $this->inchi, fn () => $this->convertInchiToSdf($this->inchi));
                 $this->moleculeFormat = 'sdf';
             } else {
                 $this->error = 'No molecule identifier provided. Use smiles, inchi, pdb, sdf, or pubchem-cid.';
@@ -185,6 +205,64 @@ class Molecule extends Component
         $timeout = config('molecule.timeout', 10);
 
         return $timeout;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mergeDefaultOptions(string $configKey, array $overrides): array
+    {
+        /** @var array<string, mixed> $defaults */
+        $defaults = config("molecule.{$configKey}", []);
+
+        return array_replace($defaults, $overrides);
+    }
+
+    /**
+     * @param Closure(): string $fetcher
+     */
+    private function getCachedOrFetch(string $type, string $value, Closure $fetcher): string
+    {
+        if (! $this->isCacheEnabled()) {
+            return $fetcher();
+        }
+
+        $cacheKey = $this->getCacheKey($type, $value);
+        /** @var string|null $cached */
+        $cached = Cache::get($cacheKey);
+
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $fresh = $fetcher();
+        Cache::put($cacheKey, $fresh, $this->getCacheTtl());
+
+        return $fresh;
+    }
+
+    private function isCacheEnabled(): bool
+    {
+        /** @var bool $enabled */
+        $enabled = config('molecule.cache.enabled', true);
+
+        return $enabled;
+    }
+
+    private function getCacheTtl(): int
+    {
+        /** @var int $ttl */
+        $ttl = config('molecule.cache.ttl', 60 * 60 * 24);
+
+        return $ttl;
+    }
+
+    private function getCacheKey(string $type, string $value): string
+    {
+        /** @var string $prefix */
+        $prefix = config('molecule.cache.prefix', 'molecule_');
+
+        return $prefix . $type . ':' . sha1($value);
     }
 
     public function render(): View
