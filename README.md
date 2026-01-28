@@ -86,6 +86,19 @@ php artisan vendor:publish --tag=molecule-config
 />
 ```
 
+### Advanced 3Dmol Options
+
+Pass additional 3Dmol.js options through the Livewire wrapper:
+
+```blade
+<livewire:molecule
+    smiles="CCO"
+    :viewer-options="['backgroundAlpha' => 0.0, 'disableFog' => true]"
+    :model-options="['keepH' => true]"
+    :style-options="['stick' => ['radius' => 0.2]]"
+/>
+```
+
 ### Reactive Updates
 
 The component reacts to property changes:
@@ -113,6 +126,11 @@ return [
 
     // HTTP timeout for external APIs (seconds)
     'timeout' => 10,
+
+    // Default 3Dmol.js options
+    'viewer_options' => [],
+    'model_options' => [],
+    'style_options' => [],
 
     // Cache settings for resolved molecules
     'cache' => [
@@ -158,6 +176,30 @@ For production use with high traffic, consider implementing your own conversion 
 - Check browser console for JavaScript errors
 - Ensure 3DMol.js is loading (check Network tab)
 - Verify the molecule data is being resolved (check `$moleculeData` property)
+
+### "Cannot connect to [API]" or blank molecule in production
+
+**This package requires outbound HTTP access** to external APIs for SMILES/InChI conversion and PubChem/PDB data fetching.
+
+**Laravel Vapor**: Enable outbound HTTP in your `vapor.yml`:
+```yaml
+id: your-project-id
+name: your-project-name
+environments:
+  production:
+    egress: true  # Enable outbound HTTP
+```
+
+**Other platforms**: Ensure your server/firewall allows outbound HTTPS to:
+- `cactus.nci.nih.gov` (SMILES/InChI conversion)
+- `pubchem.ncbi.nlm.nih.gov` (PubChem data)
+- `files.rcsb.org` (PDB structures)
+- `3dmol.csb.pitt.edu` (3DMol.js CDN)
+
+**Workaround**: Use raw SDF/PDB data instead of SMILES/PubChem CIDs to avoid external API calls:
+```blade
+<livewire:molecule :sdf="$sdfData" />
+```
 
 ## Testing
 

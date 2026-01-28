@@ -5,6 +5,9 @@
         mode: @js($mode),
         style: @js($style),
         backgroundColor: @js($backgroundColor),
+        viewerOptions: @js($viewerOptions),
+        modelOptions: @js($modelOptions),
+        styleOptions: @js($styleOptions),
     })"
     x-init="init()"
     wire:ignore.self
@@ -104,16 +107,32 @@
             element.innerHTML = '';
             this.stopRotation();
 
-            this.viewer = $3Dmol.createViewer(element, {
+            const viewerOptions = {
                 backgroundColor: config.backgroundColor,
-            });
+                ...(config.viewerOptions || {}),
+            };
+            this.viewer = $3Dmol.createViewer(element, viewerOptions);
 
-            this.viewer.addModel(config.moleculeData, config.moleculeFormat);
+            this.viewer.addModel(config.moleculeData, config.moleculeFormat, config.modelOptions || {});
             this.applyStyle();
             this.applyMode();
             this.viewer.zoomTo();
             this.viewer.render();
             this.loading = false;
+        },
+
+        mergeStyle(baseStyle, overrides) {
+            const output = { ...baseStyle };
+
+            Object.entries(overrides || {}).forEach(([key, value]) => {
+                if (value && typeof value === 'object' && !Array.isArray(value)) {
+                    output[key] = this.mergeStyle(output[key] || {}, value);
+                } else {
+                    output[key] = value;
+                }
+            });
+
+            return output;
         },
 
         applyStyle() {
@@ -128,7 +147,9 @@
                 'ball-and-stick': { stick: {}, sphere: { scale: 0.3 } },
             };
 
-            this.viewer.setStyle({}, styleMap[config.style] || styleMap['stick']);
+            const baseStyle = styleMap[config.style] || styleMap['stick'];
+            const mergedStyle = this.mergeStyle(baseStyle, config.styleOptions || {});
+            this.viewer.setStyle({}, mergedStyle);
         },
 
         applyMode() {

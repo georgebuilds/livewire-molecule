@@ -79,56 +79,96 @@ class Molecule extends Component
 
     protected function fetchFromPdb(string $pdbId): string
     {
-        /** @var Response $response */
-        $response = Http::timeout($this->getTimeout())
-            ->get("https://files.rcsb.org/download/{$pdbId}.pdb");
+        try {
+            /** @var Response $response */
+            $response = Http::timeout($this->getTimeout())
+                ->get("https://files.rcsb.org/download/{$pdbId}.pdb");
 
-        if ($response->failed()) {
-            throw new \Exception("Failed to fetch PDB structure: {$pdbId}");
+            if ($response->failed()) {
+                throw new \Exception("Failed to fetch PDB structure: {$pdbId} (HTTP {$response->status()})");
+            }
+
+            $body = $response->body();
+            
+            if (empty($body)) {
+                throw new \Exception("PDB API returned empty data for: {$pdbId}");
+            }
+
+            return $body;
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            throw new \Exception("Cannot connect to PDB API. Your server may block outbound HTTP requests. Error: " . $e->getMessage());
         }
-
-        return $response->body();
     }
 
     protected function fetchFromPubChem(string $cid): string
     {
-        /** @var Response $response */
-        $response = Http::timeout($this->getTimeout())
-            ->get("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{$cid}/SDF");
+        try {
+            /** @var Response $response */
+            $response = Http::timeout($this->getTimeout())
+                ->get("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{$cid}/SDF");
 
-        if ($response->failed()) {
-            throw new \Exception("Failed to fetch PubChem compound: {$cid}");
+            if ($response->failed()) {
+                throw new \Exception("Failed to fetch PubChem compound: {$cid} (HTTP {$response->status()})");
+            }
+
+            $body = $response->body();
+            
+            if (empty($body)) {
+                throw new \Exception("PubChem API returned empty data for CID: {$cid}");
+            }
+
+            return $body;
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            throw new \Exception("Cannot connect to PubChem API. Your server may block outbound HTTP requests. Error: " . $e->getMessage());
         }
-
-        return $response->body();
     }
 
     protected function convertSmilesToSdf(string $smiles): string
     {
-        $encoded = rawurlencode($smiles);
-        /** @var Response $response */
-        $response = Http::timeout($this->getTimeout())
-            ->get("https://cactus.nci.nih.gov/chemical/structure/{$encoded}/sdf");
+        try {
+            $encoded = rawurlencode($smiles);
+            /** @var Response $response */
+            $response = Http::timeout($this->getTimeout())
+                ->get("https://cactus.nci.nih.gov/chemical/structure/{$encoded}/sdf");
 
-        if ($response->failed()) {
-            throw new \Exception('Failed to convert SMILES to 3D structure. The SMILES string may be invalid.');
+            if ($response->failed()) {
+                throw new \Exception("Failed to convert SMILES to 3D structure (HTTP {$response->status()}). The SMILES string may be invalid.");
+            }
+
+            $body = $response->body();
+            
+            if (empty($body)) {
+                throw new \Exception("NCI CACTUS API returned empty data for SMILES: {$smiles}");
+            }
+
+            return $body;
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            throw new \Exception("Cannot connect to NCI CACTUS API. Your server may block outbound HTTP requests. Error: " . $e->getMessage());
         }
-
-        return $response->body();
     }
 
     protected function convertInchiToSdf(string $inchi): string
     {
-        $encoded = rawurlencode($inchi);
-        /** @var Response $response */
-        $response = Http::timeout($this->getTimeout())
-            ->get("https://cactus.nci.nih.gov/chemical/structure/{$encoded}/sdf");
+        try {
+            $encoded = rawurlencode($inchi);
+            /** @var Response $response */
+            $response = Http::timeout($this->getTimeout())
+                ->get("https://cactus.nci.nih.gov/chemical/structure/{$encoded}/sdf");
 
-        if ($response->failed()) {
-            throw new \Exception('Failed to convert InChI to 3D structure. The InChI string may be invalid.');
+            if ($response->failed()) {
+                throw new \Exception("Failed to convert InChI to 3D structure (HTTP {$response->status()}). The InChI string may be invalid.");
+            }
+
+            $body = $response->body();
+            
+            if (empty($body)) {
+                throw new \Exception("NCI CACTUS API returned empty data for InChI: {$inchi}");
+            }
+
+            return $body;
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            throw new \Exception("Cannot connect to NCI CACTUS API. Your server may block outbound HTTP requests. Error: " . $e->getMessage());
         }
-
-        return $response->body();
     }
 
     public function refresh(): void
