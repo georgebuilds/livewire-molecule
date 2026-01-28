@@ -11,8 +11,8 @@ class MoleculeServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/molecule.php',
-            'molecule'
+            __DIR__.'/../config/livewire-molecule.php',
+            'livewire-molecule'
         );
     }
 
@@ -24,7 +24,7 @@ class MoleculeServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/molecule.php' => config_path('molecule.php'),
+                __DIR__.'/../config/livewire-molecule.php' => config_path('livewire-molecule.php'),
             ], 'molecule-config');
 
             $this->publishes([

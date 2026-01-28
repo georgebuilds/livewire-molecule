@@ -23,7 +23,7 @@ class TestCase extends Orchestra
         $app['config']->set('app.key', 'base64:'.base64_encode(Str::random(32)));
 
         // Setup default config if needed
-        $app['config']->set('molecule.timeout', 10);
-        $app['config']->set('molecule.default_background', '#ffffff');
+        $app['config']->set('livewire-molecule.timeout', 10);
+        $app['config']->set('livewire-molecule.default_background', '#ffffff');
     }
 }

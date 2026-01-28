@@ -2,13 +2,13 @@
 
 namespace GeorgeBuilds\Molecule\Components;
 
+use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Livewire\Attributes\Reactive;
 use Livewire\Component;
-use Closure;
 
 class Molecule extends Component
 {
@@ -60,7 +60,7 @@ class Molecule extends Component
     public function mount(): void
     {
         /** @var string $defaultBg */
-        $defaultBg = config('molecule.default_background', '#ffffff');
+        $defaultBg = config('livewire-molecule.default_background', '#ffffff');
         $this->backgroundColor ??= $defaultBg;
         $this->viewerOptions = $this->mergeDefaultOptions('viewer_options', $this->viewerOptions);
         $this->modelOptions = $this->mergeDefaultOptions('model_options', $this->modelOptions);
@@ -109,14 +109,14 @@ class Molecule extends Component
             }
 
             $body = $response->body();
-            
+
             if (empty($body)) {
                 throw new \Exception("PDB API returned empty data for: {$pdbId}");
             }
 
             return $body;
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            throw new \Exception("Cannot connect to PDB API. Your server may block outbound HTTP requests. Error: " . $e->getMessage());
+            throw new \Exception('Cannot connect to PDB API. Your server may block outbound HTTP requests. Error: '.$e->getMessage());
         }
     }
 
@@ -132,14 +132,14 @@ class Molecule extends Component
             }
 
             $body = $response->body();
-            
+
             if (empty($body)) {
                 throw new \Exception("PubChem API returned empty data for CID: {$cid}");
             }
 
             return $body;
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            throw new \Exception("Cannot connect to PubChem API. Your server may block outbound HTTP requests. Error: " . $e->getMessage());
+            throw new \Exception('Cannot connect to PubChem API. Your server may block outbound HTTP requests. Error: '.$e->getMessage());
         }
     }
 
@@ -156,14 +156,14 @@ class Molecule extends Component
             }
 
             $body = $response->body();
-            
+
             if (empty($body)) {
                 throw new \Exception("NCI CACTUS API returned empty data for SMILES: {$smiles}");
             }
 
             return $body;
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            throw new \Exception("Cannot connect to NCI CACTUS API. Your server may block outbound HTTP requests. Error: " . $e->getMessage());
+            throw new \Exception('Cannot connect to NCI CACTUS API. Your server may block outbound HTTP requests. Error: '.$e->getMessage());
         }
     }
 
@@ -180,14 +180,14 @@ class Molecule extends Component
             }
 
             $body = $response->body();
-            
+
             if (empty($body)) {
                 throw new \Exception("NCI CACTUS API returned empty data for InChI: {$inchi}");
             }
 
             return $body;
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            throw new \Exception("Cannot connect to NCI CACTUS API. Your server may block outbound HTTP requests. Error: " . $e->getMessage());
+            throw new \Exception('Cannot connect to NCI CACTUS API. Your server may block outbound HTTP requests. Error: '.$e->getMessage());
         }
     }
 
@@ -202,24 +202,28 @@ class Molecule extends Component
     private function getTimeout(): int
     {
         /** @var int $timeout */
-        $timeout = config('molecule.timeout', 10);
+        $timeout = config('livewire-molecule.timeout', 10);
 
         return $timeout;
     }
 
     /**
+     * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>
      */
     private function mergeDefaultOptions(string $configKey, array $overrides): array
     {
         /** @var array<string, mixed> $defaults */
-        $defaults = config("molecule.{$configKey}", []);
+        $defaults = config("livewire-molecule.{$configKey}", []);
 
-        return array_replace($defaults, $overrides);
+        /** @var array<string, mixed> $merged */
+        $merged = array_replace($defaults, $overrides);
+
+        return $merged;
     }
 
     /**
-     * @param Closure(): string $fetcher
+     * @param  Closure(): string  $fetcher
      */
     private function getCachedOrFetch(string $type, string $value, Closure $fetcher): string
     {
@@ -244,7 +248,7 @@ class Molecule extends Component
     private function isCacheEnabled(): bool
     {
         /** @var bool $enabled */
-        $enabled = config('molecule.cache.enabled', true);
+        $enabled = config('livewire-molecule.cache.enabled', true);
 
         return $enabled;
     }
@@ -252,7 +256,7 @@ class Molecule extends Component
     private function getCacheTtl(): int
     {
         /** @var int $ttl */
-        $ttl = config('molecule.cache.ttl', 60 * 60 * 24);
+        $ttl = config('livewire-molecule.cache.ttl', 60 * 60 * 24);
 
         return $ttl;
     }
@@ -260,9 +264,9 @@ class Molecule extends Component
     private function getCacheKey(string $type, string $value): string
     {
         /** @var string $prefix */
-        $prefix = config('molecule.cache.prefix', 'molecule_');
+        $prefix = config('livewire-molecule.cache.prefix', 'molecule_');
 
-        return $prefix . $type . ':' . sha1($value);
+        return $prefix.$type.':'.sha1($value);
     }
 
     public function render(): View

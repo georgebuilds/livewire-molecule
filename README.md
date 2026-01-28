@@ -118,7 +118,7 @@ The component reacts to property changes:
 ## Configuration
 
 ```php
-// config/molecule.php
+// config/livewire-molecule.php
 
 return [
     // Default background color
@@ -199,6 +199,29 @@ environments:
 **Workaround**: Use raw SDF/PDB data instead of SMILES/PubChem CIDs to avoid external API calls:
 ```blade
 <livewire:molecule :sdf="$sdfData" />
+```
+
+## Upgrade Guide (v1 → v2)
+
+v2 renames the publishable config file and config key.
+
+1. Republish config:
+```bash
+php artisan vendor:publish --tag=molecule-config
+```
+
+2. Update config usage:
+- File moved from `config/molecule.php` to `config/livewire-molecule.php`
+- Config key changed from `molecule` to `livewire-molecule`
+
+If you referenced config values in your app, update:
+
+```php
+// v1
+config('molecule.default_background');
+
+// v2
+config('livewire-molecule.default_background');
 ```
 
 ## Testing

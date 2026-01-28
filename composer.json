@@ -1,7 +1,7 @@
 {
     "name": "georgebuilds/livewire-molecule",
     "description": "A Laravel Livewire component for 3D molecular visualization using 3DMol.js",
-    "keywords": ["laravel", "livewire", "molecule", "3dmol", "chemistry", "visualization", "smiles", "inchi"],
+    "keywords": ["laravel", "livewire", "molecule", "atoms", "3dmol", "chemistry", "visualization", "smiles", "inchi"],
     "license": "MIT",
     "authors": [
         {
@@ -16,6 +16,7 @@
     },
     "require-dev": {
         "larastan/larastan": "^3.8",
+        "laravel/pint": "^1.27",
         "orchestra/testbench": "^8.0|^9.0|^10.0",
         "pestphp/pest": "^2.0|^3.0"
     },
