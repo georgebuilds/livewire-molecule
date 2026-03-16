@@ -1,6 +1,8 @@
 # Livewire Molecule
 
-A Laravel Livewire component for 3D molecular visualization powered by [3DMol.js](https://3dmol.csb.pitt.edu/).
+A Laravel Livewire component for 3D molecular visualization powered by [3DMol.js](https://3dmol.csb.pitt.edu/)
+
+<img src="./.github/molecules.png" alt="Molecule visualization" />
 
 ## Features
 
@@ -12,8 +14,8 @@ A Laravel Livewire component for 3D molecular visualization powered by [3DMol.js
 
 ## Requirements
 
-- PHP 8.1+
-- Laravel 10, 11, or 12
+- PHP 8.2+
+- Laravel 10, 11, 12, or 13
 - Livewire 3.x
 - Alpine.js (included with Livewire)
 
@@ -223,6 +225,16 @@ config('molecule.default_background');
 // v2
 config('livewire-molecule.default_background');
 ```
+
+## Local Development
+
+To preview the component in a real browser while working on the package:
+
+```bash
+composer serve
+```
+
+Then open [http://localhost:8000](http://localhost:8000) to see a live demo page with multiple molecule examples rendered using the actual component.
 
 ## Testing
 

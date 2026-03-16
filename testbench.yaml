@@ -1,0 +1,12 @@
+env:
+  - CACHE_STORE=array
+
+providers:
+  - Livewire\LivewireServiceProvider
+  - GeorgeBuilds\Molecule\MoleculeServiceProvider
+
+workbench:
+  welcome: false
+  start: /
+  discovers:
+    web: true
