@@ -15,8 +15,8 @@ A Laravel Livewire component for 3D molecular visualization powered by [3DMol.js
 ## Requirements
 
 - PHP 8.2+
-- Laravel 10, 11, 12, or 13
-- Livewire 3.x
+- Laravel 11, 12, or 13
+- Livewire 4.x *(requires Laravel 11+)*
 - Alpine.js (included with Livewire)
 
 ## Installation
